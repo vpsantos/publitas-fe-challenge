@@ -107,7 +107,6 @@ const ImageSlider = ({ imageSources }: ImageSliderProps) => {
             document.body.removeEventListener('touchstart', handleMouseDown)
             document.body.removeEventListener('touchmove', handleMouseMove)
             document.body.removeEventListener('touchend', handleMouseUp)
-        
         }
     }, [handleMouseDown, handleMouseMove, handleMouseUp, loadImages])
 
