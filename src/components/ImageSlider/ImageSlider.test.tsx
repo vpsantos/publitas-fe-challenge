@@ -18,7 +18,7 @@ describe('ImageSlider', () => {
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
         dispatchEvent: vi.fn(),
-      } as unknown as HTMLImageElement;
+      } as unknown as HTMLImageElement
 
       setTimeout(() => {
         if (img.onload) {
