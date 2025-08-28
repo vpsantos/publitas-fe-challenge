@@ -1,6 +1,10 @@
 # Publitas Frontend Challenge
 
-This is a canvas based image slider component built with React and TypeScript during the hiring process at Publitas.
+## Online Demo
+
+You can check out the online demo at [https://vpsantos-publitas-fe-challenge.vercel.app](https://vpsantos-publitas-fe-challenge.vercel.app).
+
+This is a <canvas> based image slider component built with React and TypeScript during the Publitas hiring process.
 
 ## Getting Started
 
