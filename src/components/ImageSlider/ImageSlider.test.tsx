@@ -22,40 +22,7 @@ describe('ImageSlider', () => {
 
       setTimeout(() => {
         if (img.onload) {
-          img.onload({
-            bubbles: false,
-            cancelBubble: false,
-            cancelable: false,
-            composed: false,
-            currentTarget: null,
-            defaultPrevented: false,
-            eventPhase: 0,
-            isTrusted: false,
-            returnValue: false,
-            srcElement: null,
-            target: null,
-            timeStamp: 0,
-            type: '',
-            composedPath: function (): EventTarget[] {
-              throw new Error('Function not implemented.')
-            },
-            initEvent: function (type: string, bubbles?: boolean, cancelable?: boolean): void {
-              throw new Error('Function not implemented.')
-            },
-            preventDefault: function (): void {
-              throw new Error('Function not implemented.')
-            },
-            stopImmediatePropagation: function (): void {
-              throw new Error('Function not implemented.')
-            },
-            stopPropagation: function (): void {
-              throw new Error('Function not implemented.')
-            },
-            NONE: 0,
-            CAPTURING_PHASE: 1,
-            AT_TARGET: 2,
-            BUBBLING_PHASE: 3
-          })
+          img.onload(new Event('load'))
         }
       }, 100)
       return img
