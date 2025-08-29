@@ -41,7 +41,7 @@ describe('ImageSlider', () => {
 
   it('should render the canvas', () => {
     const { container } = render(<ImageSlider imageSources={imageSources} />)
-    const canvas = container.querySelector('canvas')
+    const canvas = container.querySelector('canvas') as HTMLCanvasElement
     expect(canvas).not.toBeNull()
   })
 
