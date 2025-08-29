@@ -63,10 +63,13 @@ const ImageSlider = ({ imageSources }: ImageSliderProps) => {
             const heightRatio = canvas.height / image.height
             const ratio = Math.min(widthRatio, heightRatio)
             const centerX = (canvas.width - image.width * ratio) / 2
-            const centerY = (canvas.height - image.height * ratio) / 2
             const x = centerX + canvas.width * index + deltaX
+            const isVisible = x > canvas.width * -1 && x < canvas.width
 
-            context.drawImage(image, x, centerY, image.width * ratio, image.height * ratio)
+            if (isVisible) {
+                const centerY = (canvas.height - image.height * ratio) / 2
+                context.drawImage(image, x, centerY, image.width * ratio, image.height * ratio)
+            }
         })
     }, [])
 
