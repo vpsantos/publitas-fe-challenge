@@ -44,19 +44,19 @@ const ImageSlider = ({ imageSources }: ImageSliderProps) => {
 		const canvas = canvasRef.current
 		const context = canvas?.getContext('2d')
 
-		if (!context || !canvas) {
+		if (!canvas || !context) {
 			return
 		}
 
         context.clearRect(0, 0, canvas.width, canvas.height)
 
         images.forEach((image, index) => {
-			const centerX = (canvas.width - image.width) / 2
+			const centerX = Math.floor((canvas.width - image.width) / 2)
             const x = centerX + canvas.width * index + deltaX
             const isVisible = x > image.width * -1 && x < canvas.width
 
             if (isVisible) {
-				const centerY = (canvas.height - image.height) / 2
+				const centerY = Math.floor((canvas.height - image.height) / 2)
                 context.drawImage(image, x, centerY, image.width, image.height)
             }
         })
