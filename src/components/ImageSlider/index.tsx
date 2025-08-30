@@ -16,9 +16,9 @@ const ImageSlider = ({ imageSources }: ImageSliderProps) => {
 
     const handleMouseDown = useCallback((event: React.MouseEvent | React.TouchEvent) => {
         event.preventDefault()
-        const offsetX = 'clientX' in event ? event.clientX : event.touches[0].clientX
+        const clientX = 'clientX' in event ? event.clientX : event.touches[0].clientX
 
-        setInitialX(offsetX - deltaX)
+        setInitialX(clientX - deltaX)
         setDragging(true)
     }, [deltaX])
 
@@ -28,9 +28,9 @@ const ImageSlider = ({ imageSources }: ImageSliderProps) => {
         }
 
         event.preventDefault()
-        const offsetX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX
+        const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX
         const minX = canvasRef.current.width * (imageSources.length - 1) * -1
-        const newDeltaX = Math.max(minX, Math.min(0, offsetX - initialX))
+        const newDeltaX = Math.max(minX, Math.min(0, clientX - initialX))
         
         setDeltaX(newDeltaX)
     }, [dragging, initialX, imageSources.length])
