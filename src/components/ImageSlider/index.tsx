@@ -7,19 +7,16 @@ type ImageSliderProps = {
 
 const ImageSlider = ({ imageSources }: ImageSliderProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
+	const animationFrameRef = useRef<number>(null)
     const [loading, setLoading] = useState(true)
     const [images, setImages] = useState<HTMLImageElement[]>([])
     const [dragging, setDragging] = useState(false)
     const [initialX, setInitialX] = useState(0)
     const [deltaX, setDeltaX] = useState(0)
 
-    const handleMouseDown = useCallback((event: MouseEvent | TouchEvent) => {
-        if (event.target !== canvasRef.current) {
-            return
-        }
-
+    const handleMouseDown = useCallback((event: React.MouseEvent | React.TouchEvent) => {
         event.preventDefault()
-        const offsetX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX
+        const offsetX = 'clientX' in event ? event.clientX : event.touches[0].clientX
 
         setInitialX(offsetX - deltaX)
         setDragging(true)
@@ -43,46 +40,46 @@ const ImageSlider = ({ imageSources }: ImageSliderProps) => {
         setDragging(false)
     }, [])
 
-    const drawImages = useCallback((images: HTMLImageElement[], deltaX: number) => {
-        const canvas = canvasRef.current
+    const drawImages = useCallback(() => {
+		const canvas = canvasRef.current
+		const context = canvas?.getContext('2d')
 
-        if (!canvas) {
-            return
-        }
-        
-        const context = canvas.getContext('2d')
-
-        if (!context) {
-            return
-        }
+		if (!context || !canvas) {
+			return
+		}
 
         context.clearRect(0, 0, canvas.width, canvas.height)
 
         images.forEach((image, index) => {
-            const widthRatio = canvas.width / image.width
-            const heightRatio = canvas.height / image.height
-            const ratio = Math.min(widthRatio, heightRatio)
-            const scaledImageWidth = image.width * ratio
-            const scaledImageHeight = image.height * ratio
-            const centerX = (canvas.width - scaledImageWidth) / 2
+			const centerX = (canvas.width - image.width) / 2
             const x = centerX + canvas.width * index + deltaX
-            const isVisible = x > scaledImageWidth * -1 && x < canvas.width
+            const isVisible = x > image.width * -1 && x < canvas.width
 
             if (isVisible) {
-                const centerY = (canvas.height - scaledImageHeight) / 2
-                context.drawImage(image, x, centerY, scaledImageWidth, scaledImageHeight)
+				const centerY = (canvas.height - image.height) / 2
+                context.drawImage(image, x, centerY, image.width, image.height)
             }
         })
-    }, [])
+    }, [images, deltaX])
 
     const loadImages = useCallback(() => {
+		const canvas = canvasRef.current
+
+		if (!canvas) {
+			return
+		}
+
         let imagesLoaded = 0
         const newImages: HTMLImageElement[] = []
 
-        imageSources.forEach((source) => {
+        imageSources.forEach(source => {
             const image = new Image()
-            image.src = source
 			image.onload = () => {
+                const scaleX = canvas.width / image.width
+                const scaleY = canvas.height / image.height
+                const scale = Math.min(scaleX, scaleY)
+                image.width = image.width * scale
+                image.height = image.height * scale
                 imagesLoaded++
                 
                 if (imagesLoaded === imageSources.length) {
@@ -90,38 +87,46 @@ const ImageSlider = ({ imageSources }: ImageSliderProps) => {
                     setImages(newImages)
                 }
             }
-
+            image.src = source
             newImages.push(image)
         })
     }, [imageSources])
 
     useEffect(() => {
 		loadImages()
-
-        document.body.addEventListener('mousedown', handleMouseDown)
-		document.body.addEventListener('mousemove', handleMouseMove)
-		document.body.addEventListener('mouseup', handleMouseUp)
-        document.body.addEventListener('touchstart', handleMouseDown)
-		document.body.addEventListener('touchmove', handleMouseMove)
-		document.body.addEventListener('touchend', handleMouseUp)
-        
-        return () => {
-            document.body.removeEventListener('mousedown', handleMouseDown)
-            document.body.removeEventListener('mousemove', handleMouseMove)
-            document.body.removeEventListener('mouseup', handleMouseUp)
-            document.body.removeEventListener('touchstart', handleMouseDown)
-            document.body.removeEventListener('touchmove', handleMouseMove)
-            document.body.removeEventListener('touchend', handleMouseUp)
-        }
-    }, [handleMouseDown, handleMouseMove, handleMouseUp, loadImages])
+    }, [loadImages])
 
     useEffect(() => {
         if (images.length === 0) {
             return
         }
 
-        drawImages(images, deltaX)
-    }, [images, drawImages, deltaX])
+        animationFrameRef.current = requestAnimationFrame(drawImages)
+
+		return () => {
+			if (animationFrameRef.current) {
+				cancelAnimationFrame(animationFrameRef.current)
+			}
+		}
+    }, [images, drawImages])
+
+    useEffect(() => {
+        if (!dragging) {
+            return
+        }
+
+		document.body.addEventListener('mousemove', handleMouseMove)
+		document.body.addEventListener('mouseup', handleMouseUp)
+		document.body.addEventListener('touchmove', handleMouseMove)
+		document.body.addEventListener('touchend', handleMouseUp)
+        
+        return () => {
+            document.body.removeEventListener('mousemove', handleMouseMove)
+            document.body.removeEventListener('mouseup', handleMouseUp)
+            document.body.removeEventListener('touchmove', handleMouseMove)
+            document.body.removeEventListener('touchend', handleMouseUp)
+        }
+    }, [dragging, handleMouseMove, handleMouseUp])
 
     return (
         <>
@@ -130,6 +135,8 @@ const ImageSlider = ({ imageSources }: ImageSliderProps) => {
                 className={dragging ? 'dragging' : undefined}
                 width="640"
                 height="400"
+                onMouseDown={handleMouseDown}
+                onTouchStart={handleMouseDown}
             />
             {loading && <aside>Loading images, please wait...</aside>}
             {!loading && <aside>Drag to change image</aside>}
